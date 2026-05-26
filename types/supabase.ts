@@ -591,7 +591,7 @@ export type Database = {
         Row: {
           created_at: string
           device_identifier: string | null
-          event_date_id: string | null
+          ticket_event_session_id: string | null
           id: string
           is_offline_sync: boolean
           ticket_id: string
@@ -602,7 +602,7 @@ export type Database = {
         Insert: {
           created_at?: string
           device_identifier?: string | null
-          event_date_id?: string | null
+          ticket_event_session_id?: string | null
           id?: string
           is_offline_sync?: boolean
           ticket_id: string
@@ -613,7 +613,7 @@ export type Database = {
         Update: {
           created_at?: string
           device_identifier?: string | null
-          event_date_id?: string | null
+          ticket_event_session_id?: string | null
           id?: string
           is_offline_sync?: boolean
           ticket_id?: string
@@ -713,6 +713,496 @@ export type Database = {
           profile_id?: string | null
         }
         Relationships: []
+      }
+      // ============================================================================
+      // NUEVAS TABLAS: Events Architecture (PGS-004)
+      // ============================================================================
+      events: {
+        Row: {
+          id: string
+          producer_id: string
+          title: string
+          slug: string
+          description: string | null
+          short_description: string | null
+          event_type: string
+          duration_minutes: number | null
+          age_rating: string | null
+          poster_url: string | null
+          backdrop_url: string | null
+          trailer_url: string | null
+          status: string
+          is_active: boolean
+          is_featured: boolean
+          created_at: string
+          updated_at: string
+          published_at: string | null
+        }
+        Insert: {
+          id?: string
+          producer_id: string
+          title: string
+          slug: string
+          description?: string | null
+          short_description?: string | null
+          event_type: string
+          duration_minutes?: number | null
+          age_rating?: string | null
+          poster_url?: string | null
+          backdrop_url?: string | null
+          trailer_url?: string | null
+          status?: string
+          is_active?: boolean
+          is_featured?: boolean
+          created_at?: string
+          updated_at?: string
+          published_at?: string | null
+        }
+        Update: {
+          id?: string
+          producer_id?: string
+          title?: string
+          slug?: string
+          description?: string | null
+          short_description?: string | null
+          event_type?: string
+          duration_minutes?: number | null
+          age_rating?: string | null
+          poster_url?: string | null
+          backdrop_url?: string | null
+          trailer_url?: string | null
+          status?: string
+          is_active?: boolean
+          is_featured?: boolean
+          created_at?: string
+          updated_at?: string
+          published_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_producer_id_fkey"
+            columns: ["producer_id"]
+            isOneToOne: false
+            referencedRelation: "producers"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      event_sessions: {
+        Row: {
+          id: string
+          event_id: string
+          room_id: string | null
+          session_label: string | null
+          start_time: string
+          end_time: string | null
+          doors_open_at: string | null
+          sale_starts_at: string
+          sale_ends_at: string | null
+          status: string
+          is_active: boolean
+          total_capacity: number
+          available_capacity: number
+          sold_count: number
+          reserved_count: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          event_id: string
+          room_id?: string | null
+          session_label?: string | null
+          start_time: string
+          end_time?: string | null
+          doors_open_at?: string | null
+          sale_starts_at?: string
+          sale_ends_at?: string | null
+          status?: string
+          is_active?: boolean
+          total_capacity?: number
+          available_capacity?: number
+          sold_count?: number
+          reserved_count?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          event_id?: string
+          room_id?: string | null
+          session_label?: string | null
+          start_time?: string
+          end_time?: string | null
+          doors_open_at?: string | null
+          sale_starts_at?: string
+          sale_ends_at?: string | null
+          status?: string
+          is_active?: boolean
+          total_capacity?: number
+          available_capacity?: number
+          sold_count?: number
+          reserved_count?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_sessions_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      event_sectors: {
+        Row: {
+          id: string
+          event_id: string
+          name: string
+          code: string | null
+          sector_type: string
+          description: string | null
+          seat_count: number
+          display_order: number
+          color_code: string | null
+          is_active: boolean
+          is_numbered: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          event_id: string
+          name: string
+          code?: string | null
+          sector_type: string
+          description?: string | null
+          seat_count?: number
+          display_order?: number
+          color_code?: string | null
+          is_active?: boolean
+          is_numbered?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          event_id?: string
+          name?: string
+          code?: string | null
+          sector_type?: string
+          description?: string | null
+          seat_count?: number
+          display_order?: number
+          color_code?: string | null
+          is_active?: boolean
+          is_numbered?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_sectors_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      ticket_types: {
+        Row: {
+          id: string
+          event_id: string
+          sector_id: string | null
+          name: string
+          description: string | null
+          base_price: number
+          total_quantity: number
+          sold_quantity: number
+          min_purchase: number
+          max_purchase: number
+          is_visible: boolean
+          display_order: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          event_id: string
+          sector_id?: string | null
+          name: string
+          description?: string | null
+          base_price: number
+          total_quantity?: number
+          sold_quantity?: number
+          min_purchase?: number
+          max_purchase?: number
+          is_visible?: boolean
+          display_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          event_id?: string
+          sector_id?: string | null
+          name?: string
+          description?: string | null
+          base_price?: number
+          total_quantity?: number
+          sold_quantity?: number
+          min_purchase?: number
+          max_purchase?: number
+          is_visible?: boolean
+          display_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_types_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      sale_stages: {
+        Row: {
+          id: string
+          event_id: string
+          ticket_type_id: string
+          name: string
+          stage_order: number
+          starts_at: string
+          ends_at: string
+          sale_price: number
+          original_price: number | null
+          max_tickets: number | null
+          sold_count: number
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          event_id: string
+          ticket_type_id: string
+          name: string
+          stage_order?: number
+          starts_at: string
+          ends_at: string
+          sale_price: number
+          original_price?: number | null
+          max_tickets?: number | null
+          sold_count?: number
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          event_id?: string
+          ticket_type_id?: string
+          name?: string
+          stage_order?: number
+          starts_at?: string
+          ends_at?: string
+          sale_price?: number
+          original_price?: number | null
+          max_tickets?: number | null
+          sold_count?: number
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sale_stages_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      additional_services: {
+        Row: {
+          id: string
+          event_id: string
+          name: string
+          description: string | null
+          price: number
+          is_limited: boolean
+          total_quantity: number | null
+          available_quantity: number | null
+          is_optional: boolean
+          is_active: boolean
+          max_per_ticket: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          event_id: string
+          name: string
+          description?: string | null
+          price: number
+          is_limited?: boolean
+          total_quantity?: number | null
+          available_quantity?: number | null
+          is_optional?: boolean
+          is_active?: boolean
+          max_per_ticket?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          event_id?: string
+          name?: string
+          description?: string | null
+          price?: number
+          is_limited?: boolean
+          total_quantity?: number | null
+          available_quantity?: number | null
+          is_optional?: boolean
+          is_active?: boolean
+          max_per_ticket?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "additional_services_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      promo_codes: {
+        Row: {
+          id: string
+          event_id: string | null
+          producer_id: string
+          code: string
+          description: string | null
+          discount_type: string
+          discount_value: number
+          max_uses: number | null
+          uses_count: number
+          max_uses_per_user: number
+          starts_at: string
+          ends_at: string | null
+          applicable_ticket_types: string[] | null
+          min_purchase_amount: number | null
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          event_id?: string | null
+          producer_id: string
+          code: string
+          description?: string | null
+          discount_type: string
+          discount_value: number
+          max_uses?: number | null
+          uses_count?: number
+          max_uses_per_user?: number
+          starts_at?: string
+          ends_at?: string | null
+          applicable_ticket_types?: string[] | null
+          min_purchase_amount?: number | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          event_id?: string | null
+          producer_id?: string
+          code?: string
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          max_uses?: number | null
+          uses_count?: number
+          max_uses_per_user?: number
+          starts_at?: string
+          ends_at?: string | null
+          applicable_ticket_types?: string[] | null
+          min_purchase_amount?: number | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promo_codes_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      ticket_event_sessions: {
+        Row: {
+          id: string
+          ticket_id: string
+          event_session_id: string
+          seat_number: string | null
+          status: string
+          validated_at: string | null
+          validated_by_profile_id: string | null
+          validation_method: string | null
+          validation_device_id: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          ticket_id: string
+          event_session_id: string
+          seat_number?: string | null
+          status?: string
+          validated_at?: string | null
+          validated_by_profile_id?: string | null
+          validation_method?: string | null
+          validation_device_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          ticket_id?: string
+          event_session_id?: string
+          seat_number?: string | null
+          status?: string
+          validated_at?: string | null
+          validated_by_profile_id?: string | null
+          validation_method?: string | null
+          validation_device_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_event_sessions_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "tickets"
+            referencedColumns: ["id"]
+          }
+        ]
       }
     }
     Views: {
