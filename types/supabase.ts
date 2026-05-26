@@ -1,296 +1,888 @@
-/**
- * Tipos generados de la base de datos Supabase.
- * Este archivo debe actualizarse con los tipos reales de la DB usando:
- * npx supabase gen types typescript --project-id <project-id> --schema public > types/supabase.ts
- *
- * NOTA: Este archivo es temporal. Los tipos oficiales se generan automáticamente
- * desde el schema de Supabase.
- */
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
 
-import type { ID, Nullable, Timestamps } from "./global";
-
-// ============================================================================
-// Enums
-// ============================================================================
-
-export type PaymentStatus =
-  | "pending"
-  | "paid"
-  | "failed"
-  | "cancelled"
-  | "expired"
-  | "refunded";
-
-export type CurrencyCode = "ARS" | "USD";
-
-export type TicketStatus =
-  | "active"
-  | "used"
-  | "cancelled"
-  | "expired"
-  | "transferred";
-
-// ============================================================================
-// Tables
-// ============================================================================
-
-export interface TicketOrder extends Timestamps {
-  id: ID;
-  profile_id: ID;
-  event_id: ID;
-  order_number: string;
-  subtotal_amount: number;
-  service_fee_amount: number;
-  total_amount: number;
-  currency: CurrencyCode;
-  payment_status: PaymentStatus;
-  promo_code_id: Nullable<ID>;
-  expires_at: Nullable<string>;
-  paid_at: Nullable<string>;
-  cancelled_at: Nullable<string>;
-}
-
-export interface Ticket extends Timestamps {
-  id: ID;
-  order_id: ID;
-  event_id: ID;
-  ticket_type_id: ID;
-  sector_id: Nullable<ID>;
-  holder_profile_id: ID;
-  qr_code: string;
-  manual_code: string;
-  ticket_status: TicketStatus;
-  is_courtesy: boolean;
-  validated_at: Nullable<string>;
-}
-
-export interface TicketEventDate {
-  id: ID;
-  ticket_id: ID;
-  event_date_id: ID;
-  created_at: string;
-}
-
-export interface TicketAdditionalService {
-  id: ID;
-  ticket_id: ID;
-  additional_service_id: ID;
-  quantity: number;
-  unit_price: number;
-  total_price: number;
-  created_at: string;
-}
-
-export type ValidationMethod =
-  | "qr_scan"
-  | "manual_code"
-  | "rfid"
-  | "nfc"
-  | "biometric";
-
-export interface TicketValidation {
-  id: ID;
-  ticket_id: ID;
-  validated_by_profile_id: ID;
-  event_date_id: Nullable<ID>;
-  validation_method: ValidationMethod;
-  validated_at: string;
-  device_identifier: Nullable<string>;
-  is_offline_sync: boolean;
-  created_at: string;
-}
-
-export interface CourtesyTicket {
-  id: ID;
-  ticket_id: ID;
-  issued_by_profile_id: ID;
-  reason: string;
-  created_at: string;
-}
-
-export interface Waitlist {
-  id: ID;
-  event_id: ID;
-  profile_id: Nullable<ID>;
-  email: string;
-  notified_at: Nullable<string>;
-  created_at: string;
-}
-
-export type SettlementStatus =
-  | "pending"
-  | "processing"
-  | "settled"
-  | "failed"
-  | "cancelled";
-
-export interface Settlement extends Timestamps {
-  id: ID;
-  producer_id: ID;
-  event_id: ID;
-  total_sales_amount: number;
-  total_service_fee_amount: number;
-  producer_amount: number;
-  settlement_status: SettlementStatus;
-  settled_at: Nullable<string>;
-}
-
-export interface InternalCredit {
-  id: ID;
-  profile_id: ID;
-  amount: number;
-  reason: string;
-  expires_at: Nullable<string>;
-  created_at: string;
-}
-
-export interface Campaign extends Timestamps {
-  id: ID;
-  producer_id: ID;
-  name: string;
-  subject: string;
-  content: string;
-  target_filters: Record<string, unknown>;
-  scheduled_at: Nullable<string>;
-  sent_at: Nullable<string>;
-}
-
-export type DeliveryStatus =
-  | "pending"
-  | "sent"
-  | "delivered"
-  | "bounced"
-  | "failed"
-  | "complained";
-
-export interface CampaignDelivery {
-  id: ID;
-  campaign_id: ID;
-  profile_id: ID;
-  delivery_status: DeliveryStatus;
-  opened_at: Nullable<string>;
-  clicked_at: Nullable<string>;
-  created_at: string;
-}
-
-export interface FeaturedEvent {
-  id: ID;
-  event_id: ID;
-  starts_at: string;
-  ends_at: string;
-  display_order: number;
-  created_at: string;
-}
-
-export interface AccessDevice extends Timestamps {
-  id: ID;
-  producer_id: ID;
-  device_name: string;
-  device_identifier: string;
-  is_active: boolean;
-}
-
-export interface AccessLog {
-  id: ID;
-  device_id: ID;
-  event_id: ID;
-  action: string;
-  payload: Record<string, unknown>;
-  created_at: string;
-}
-
-export interface NewsletterPreference extends Timestamps {
-  id: ID;
-  profile_id: ID;
-  interested_categories: string[];
-  interested_localities: string[];
-  is_subscribed: boolean;
-}
-
-// ============================================================================
-// Database Interface (para @supabase/ssr)
-// ============================================================================
-
-export interface Database {
+export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.5"
+  }
   public: {
     Tables: {
-      ticket_orders: {
-        Row: TicketOrder;
-        Insert: Omit<TicketOrder, "id" | "created_at" | "updated_at">;
-        Update: Partial<Omit<TicketOrder, "id" | "created_at" | "updated_at">>;
-      };
-      tickets: {
-        Row: Ticket;
-        Insert: Omit<Ticket, "id" | "created_at" | "updated_at">;
-        Update: Partial<Omit<Ticket, "id" | "created_at" | "updated_at">>;
-      };
-      ticket_event_dates: {
-        Row: TicketEventDate;
-        Insert: Omit<TicketEventDate, "id" | "created_at">;
-        Update: Partial<Omit<TicketEventDate, "id" | "created_at">>;
-      };
-      ticket_additional_services: {
-        Row: TicketAdditionalService;
-        Insert: Omit<TicketAdditionalService, "id" | "created_at">;
-        Update: Partial<Omit<TicketAdditionalService, "id" | "created_at">>;
-      };
-      ticket_validations: {
-        Row: TicketValidation;
-        Insert: Omit<TicketValidation, "id" | "created_at">;
-        Update: Partial<Omit<TicketValidation, "id" | "created_at">>;
-      };
-      courtesy_tickets: {
-        Row: CourtesyTicket;
-        Insert: Omit<CourtesyTicket, "id" | "created_at">;
-        Update: Partial<Omit<CourtesyTicket, "id" | "created_at">>;
-      };
-      waitlists: {
-        Row: Waitlist;
-        Insert: Omit<Waitlist, "id" | "created_at">;
-        Update: Partial<Omit<Waitlist, "id" | "created_at">>;
-      };
-      settlements: {
-        Row: Settlement;
-        Insert: Omit<Settlement, "id" | "created_at" | "updated_at">;
-        Update: Partial<Omit<Settlement, "id" | "created_at" | "updated_at">>;
-      };
-      internal_credits: {
-        Row: InternalCredit;
-        Insert: Omit<InternalCredit, "id" | "created_at">;
-        Update: Partial<Omit<InternalCredit, "id" | "created_at">>;
-      };
-      campaigns: {
-        Row: Campaign;
-        Insert: Omit<Campaign, "id" | "created_at" | "updated_at">;
-        Update: Partial<Omit<Campaign, "id" | "created_at" | "updated_at">>;
-      };
-      campaign_deliveries: {
-        Row: CampaignDelivery;
-        Insert: Omit<CampaignDelivery, "id" | "created_at">;
-        Update: Partial<Omit<CampaignDelivery, "id" | "created_at">>;
-      };
-      featured_events: {
-        Row: FeaturedEvent;
-        Insert: Omit<FeaturedEvent, "id" | "created_at">;
-        Update: Partial<Omit<FeaturedEvent, "id" | "created_at">>;
-      };
       access_devices: {
-        Row: AccessDevice;
-        Insert: Omit<AccessDevice, "id" | "created_at" | "updated_at">;
-        Update: Partial<Omit<AccessDevice, "id" | "created_at" | "updated_at">>;
-      };
+        Row: {
+          created_at: string
+          device_identifier: string
+          device_name: string
+          id: string
+          is_active: boolean
+          producer_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          device_identifier: string
+          device_name: string
+          id?: string
+          is_active?: boolean
+          producer_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          device_identifier?: string
+          device_name?: string
+          id?: string
+          is_active?: boolean
+          producer_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       access_logs: {
-        Row: AccessLog;
-        Insert: Omit<AccessLog, "id" | "created_at">;
-        Update: Partial<Omit<AccessLog, "id" | "created_at">>;
-      };
+        Row: {
+          action: string
+          created_at: string
+          device_id: string
+          event_id: string
+          id: string
+          payload: Json | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          device_id: string
+          event_id: string
+          id?: string
+          payload?: Json | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          device_id?: string
+          event_id?: string
+          id?: string
+          payload?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "access_logs_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "access_devices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audit_logs: {
+        Row: {
+          actor_email: string | null
+          actor_id: string | null
+          actor_role: string | null
+          created_at: string
+          event_description: string | null
+          event_type: Database["public"]["Enums"]["audit_event_type"]
+          id: string
+          ip_address: unknown
+          payload: Json | null
+          request_path: string | null
+          target_id: string | null
+          target_type: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          actor_email?: string | null
+          actor_id?: string | null
+          actor_role?: string | null
+          created_at?: string
+          event_description?: string | null
+          event_type: Database["public"]["Enums"]["audit_event_type"]
+          id?: string
+          ip_address?: unknown
+          payload?: Json | null
+          request_path?: string | null
+          target_id?: string | null
+          target_type?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          actor_email?: string | null
+          actor_id?: string | null
+          actor_role?: string | null
+          created_at?: string
+          event_description?: string | null
+          event_type?: Database["public"]["Enums"]["audit_event_type"]
+          id?: string
+          ip_address?: unknown
+          payload?: Json | null
+          request_path?: string | null
+          target_id?: string | null
+          target_type?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      campaign_deliveries: {
+        Row: {
+          campaign_id: string
+          clicked_at: string | null
+          created_at: string
+          delivery_status: string
+          id: string
+          opened_at: string | null
+          profile_id: string
+        }
+        Insert: {
+          campaign_id: string
+          clicked_at?: string | null
+          created_at?: string
+          delivery_status?: string
+          id?: string
+          opened_at?: string | null
+          profile_id: string
+        }
+        Update: {
+          campaign_id?: string
+          clicked_at?: string | null
+          created_at?: string
+          delivery_status?: string
+          id?: string
+          opened_at?: string | null
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_deliveries_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaigns: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          name: string
+          producer_id: string
+          scheduled_at: string | null
+          sent_at: string | null
+          subject: string
+          target_filters: Json | null
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          name: string
+          producer_id: string
+          scheduled_at?: string | null
+          sent_at?: string | null
+          subject: string
+          target_filters?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          name?: string
+          producer_id?: string
+          scheduled_at?: string | null
+          sent_at?: string | null
+          subject?: string
+          target_filters?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      courtesy_tickets: {
+        Row: {
+          created_at: string
+          id: string
+          issued_by_profile_id: string
+          reason: string
+          ticket_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          issued_by_profile_id: string
+          reason: string
+          ticket_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          issued_by_profile_id?: string
+          reason?: string
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "courtesy_tickets_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      featured_events: {
+        Row: {
+          created_at: string
+          display_order: number
+          ends_at: string
+          event_id: string
+          id: string
+          starts_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          ends_at: string
+          event_id: string
+          id?: string
+          starts_at: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          ends_at?: string
+          event_id?: string
+          id?: string
+          starts_at?: string
+        }
+        Relationships: []
+      }
+      internal_credits: {
+        Row: {
+          amount: number
+          created_at: string
+          expires_at: string | null
+          id: string
+          profile_id: string
+          reason: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          profile_id: string
+          reason: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          profile_id?: string
+          reason?: string
+        }
+        Relationships: []
+      }
       newsletter_preferences: {
-        Row: NewsletterPreference;
-        Insert: Omit<NewsletterPreference, "id" | "created_at" | "updated_at">;
-        Update: Partial<Omit<NewsletterPreference, "id" | "created_at" | "updated_at">>;
-      };
-    };
-    Views: Record<string, never>;
-    Functions: Record<string, never>;
-  };
+        Row: {
+          created_at: string
+          id: string
+          interested_categories: Json | null
+          interested_localities: Json | null
+          is_subscribed: boolean
+          profile_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          interested_categories?: Json | null
+          interested_localities?: Json | null
+          is_subscribed?: boolean
+          profile_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          interested_categories?: Json | null
+          interested_localities?: Json | null
+          is_subscribed?: boolean
+          profile_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      producers: {
+        Row: {
+          address: string | null
+          auth_user_id: string
+          business_name: string
+          created_at: string
+          email: string | null
+          id: string
+          is_active: boolean
+          legal_name: string | null
+          phone: string | null
+          profile_id: string
+          tax_id: string | null
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          auth_user_id: string
+          business_name: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          legal_name?: string | null
+          phone?: string | null
+          profile_id: string
+          tax_id?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          auth_user_id?: string
+          business_name?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          legal_name?: string | null
+          phone?: string | null
+          profile_id?: string
+          tax_id?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "producers_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          auth_user_id: string
+          birth_date: string | null
+          created_at: string
+          dni: string | null
+          email: string
+          full_name: string | null
+          gender: string | null
+          id: string
+          is_blocked: boolean
+          locality: string | null
+          phone: string | null
+          province: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at: string
+        }
+        Insert: {
+          auth_user_id: string
+          birth_date?: string | null
+          created_at?: string
+          dni?: string | null
+          email: string
+          full_name?: string | null
+          gender?: string | null
+          id?: string
+          is_blocked?: boolean
+          locality?: string | null
+          phone?: string | null
+          province?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
+        Update: {
+          auth_user_id?: string
+          birth_date?: string | null
+          created_at?: string
+          dni?: string | null
+          email?: string
+          full_name?: string | null
+          gender?: string | null
+          id?: string
+          is_blocked?: boolean
+          locality?: string | null
+          phone?: string | null
+          province?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      settlements: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          producer_amount: number
+          producer_id: string
+          settled_at: string | null
+          settlement_status: string
+          total_sales_amount: number
+          total_service_fee_amount: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          producer_amount?: number
+          producer_id: string
+          settled_at?: string | null
+          settlement_status?: string
+          total_sales_amount?: number
+          total_service_fee_amount?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          producer_amount?: number
+          producer_id?: string
+          settled_at?: string | null
+          settlement_status?: string
+          total_sales_amount?: number
+          total_service_fee_amount?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ticket_additional_services: {
+        Row: {
+          additional_service_id: string
+          created_at: string
+          id: string
+          quantity: number
+          ticket_id: string
+          total_price: number
+          unit_price: number
+        }
+        Insert: {
+          additional_service_id: string
+          created_at?: string
+          id?: string
+          quantity?: number
+          ticket_id: string
+          total_price?: number
+          unit_price?: number
+        }
+        Update: {
+          additional_service_id?: string
+          created_at?: string
+          id?: string
+          quantity?: number
+          ticket_id?: string
+          total_price?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_additional_services_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ticket_event_dates: {
+        Row: {
+          created_at: string
+          event_date_id: string
+          id: string
+          ticket_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_date_id: string
+          id?: string
+          ticket_id: string
+        }
+        Update: {
+          created_at?: string
+          event_date_id?: string
+          id?: string
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_event_dates_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ticket_orders: {
+        Row: {
+          cancelled_at: string | null
+          created_at: string
+          currency: string
+          event_id: string
+          expires_at: string | null
+          id: string
+          order_number: string
+          paid_at: string | null
+          payment_status: string
+          profile_id: string
+          promo_code_id: string | null
+          service_fee_amount: number
+          subtotal_amount: number
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          cancelled_at?: string | null
+          created_at?: string
+          currency?: string
+          event_id: string
+          expires_at?: string | null
+          id?: string
+          order_number: string
+          paid_at?: string | null
+          payment_status?: string
+          profile_id: string
+          promo_code_id?: string | null
+          service_fee_amount?: number
+          subtotal_amount?: number
+          total_amount?: number
+          updated_at?: string
+        }
+        Update: {
+          cancelled_at?: string | null
+          created_at?: string
+          currency?: string
+          event_id?: string
+          expires_at?: string | null
+          id?: string
+          order_number?: string
+          paid_at?: string | null
+          payment_status?: string
+          profile_id?: string
+          promo_code_id?: string | null
+          service_fee_amount?: number
+          subtotal_amount?: number
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ticket_validations: {
+        Row: {
+          created_at: string
+          device_identifier: string | null
+          event_date_id: string | null
+          id: string
+          is_offline_sync: boolean
+          ticket_id: string
+          validated_at: string
+          validated_by_profile_id: string
+          validation_method: string
+        }
+        Insert: {
+          created_at?: string
+          device_identifier?: string | null
+          event_date_id?: string | null
+          id?: string
+          is_offline_sync?: boolean
+          ticket_id: string
+          validated_at?: string
+          validated_by_profile_id: string
+          validation_method: string
+        }
+        Update: {
+          created_at?: string
+          device_identifier?: string | null
+          event_date_id?: string | null
+          id?: string
+          is_offline_sync?: boolean
+          ticket_id?: string
+          validated_at?: string
+          validated_by_profile_id?: string
+          validation_method?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_validations_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tickets: {
+        Row: {
+          created_at: string
+          event_id: string
+          holder_profile_id: string
+          id: string
+          is_courtesy: boolean
+          manual_code: string
+          order_id: string
+          qr_code: string
+          sector_id: string | null
+          ticket_status: string
+          ticket_type_id: string
+          updated_at: string
+          validated_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          holder_profile_id: string
+          id?: string
+          is_courtesy?: boolean
+          manual_code: string
+          order_id: string
+          qr_code: string
+          sector_id?: string | null
+          ticket_status?: string
+          ticket_type_id: string
+          updated_at?: string
+          validated_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          holder_profile_id?: string
+          id?: string
+          is_courtesy?: boolean
+          manual_code?: string
+          order_id?: string
+          qr_code?: string
+          sector_id?: string | null
+          ticket_status?: string
+          ticket_type_id?: string
+          updated_at?: string
+          validated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tickets_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "ticket_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      waitlists: {
+        Row: {
+          created_at: string
+          email: string
+          event_id: string
+          id: string
+          notified_at: string | null
+          profile_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          event_id: string
+          id?: string
+          notified_at?: string | null
+          profile_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          event_id?: string
+          id?: string
+          notified_at?: string | null
+          profile_id?: string | null
+        }
+        Relationships: []
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      is_admin: { Args: never; Returns: boolean }
+      log_audit_event: {
+        Args: {
+          p_actor_email?: string
+          p_actor_id: string
+          p_actor_role?: string
+          p_description?: string
+          p_event_type: Database["public"]["Enums"]["audit_event_type"]
+          p_payload?: Json
+          p_target_id?: string
+          p_target_type?: string
+        }
+        Returns: string
+      }
+    }
+    Enums: {
+      audit_event_type:
+        | "auth.login"
+        | "auth.logout"
+        | "auth.register"
+        | "auth.password_reset"
+        | "auth.password_change"
+        | "profile.update"
+        | "profile.critical_change"
+        | "admin.action"
+      user_role: "ROLE_ADMIN" | "ROLE_PRODUCER" | "ROLE_STAFF" | "ROLE_CUSTOMER"
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
 }
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {
+      audit_event_type: [
+        "auth.login",
+        "auth.logout",
+        "auth.register",
+        "auth.password_reset",
+        "auth.password_change",
+        "profile.update",
+        "profile.critical_change",
+        "admin.action",
+      ],
+      user_role: ["ROLE_ADMIN", "ROLE_PRODUCER", "ROLE_STAFF", "ROLE_CUSTOMER"],
+    },
+  },
+} as const
