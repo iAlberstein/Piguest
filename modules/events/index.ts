@@ -12,6 +12,9 @@
 // Tipos
 export * from "./types/event.types";
 
+// Schemas (validación Zod)
+export * from "./forms/event.schemas";
+
 // Components (serán exportados cuando se creen)
 // export { CreateEventForm } from "./components/CreateEventForm";
 // export { EventCard } from "./components/EventCard";
