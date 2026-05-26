@@ -24,6 +24,20 @@ export * from "./forms/event.schemas";
 // export { useEvents } from "./hooks/useEvents";
 // export { useEventSessions } from "./hooks/useEventSessions";
 
-// Server Actions (serán exportados cuando se creen)
-// export { createEventAction } from "./actions/create-event.action";
-// export { getEventsAction } from "./actions/get-events.action";
+// Server Actions
+export { createEvent } from "./actions/create-event.action";
+export { updateEvent } from "./actions/update-event.action";
+export { publishEvent } from "./actions/publish-event.action";
+export { hideEvent } from "./actions/hide-event.action";
+export { unhideEvent } from "./actions/unhide-event.action";
+export { cancelEvent } from "./actions/cancel-event.action";
+export {
+  addEventSession,
+  updateEventSession,
+  removeEventSession,
+} from "./actions/event-session.actions";
+export {
+  getEventBySlug,
+  getProducerEvents,
+  getPublicEvents,
+} from "./actions/get-events.action";
