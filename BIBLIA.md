@@ -1,3 +1,50 @@
+# REGLAS GLOBALES DE FECHA Y HORA
+
+Piguest utiliza formato regional Argentina.
+
+ESTÁNDAR OBLIGATORIO:
+
+## Fecha
+
+DD/MM/AAAA
+
+Ejemplo:
+25/05/2026
+
+## Hora
+
+Formato 24hs.
+
+Ejemplo:
+21:30
+
+## Timezone oficial
+
+America/Argentina/Buenos_Aires
+
+## REGLAS OBLIGATORIAS
+
+* TODAS las fechas visibles al usuario deben renderizarse en formato Argentina.
+* TODAS las horas visibles deben utilizar formato 24hs.
+* NO usar formato AM/PM.
+* NO usar formato MM/DD/YYYY.
+* TODAS las fechas deben almacenarse en UTC en base de datos.
+* TODAS las fechas deben convertirse al timezone Argentina al renderizar.
+* Utilizar date-fns para formatting y parsing.
+* Centralizar helpers de fecha/hora.
+* NO duplicar lógica de formateo.
+
+## HELPERS OFICIALES
+
+Crear helpers reutilizables:
+
+* formatDateAR()
+* formatTimeAR()
+* formatDateTimeAR()
+
+Toda la app debe utilizar exclusivamente esos helpers.
+
+
 # PGS-001 — BOOTSTRAP OFICIAL DEL PROYECTO PIGUEST
 
 ## CONTEXTO OBLIGATORIO
@@ -355,6 +402,11 @@ Verificar:
 NO continuar etapas siguientes automáticamente.
 
 Finalizar implementación al terminar bootstrap.
+
+## GIT
+git add .
+git commit -m "PGS-001 bootstrap oficial completado"
+git tag pgs-001-complete
 
 
 # PGS-002 — SISTEMA DE AUTENTICACIÓN PIGUEST
